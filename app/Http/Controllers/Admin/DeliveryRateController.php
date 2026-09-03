@@ -30,7 +30,7 @@ class DeliveryRateController extends Controller
         ]);
 
         $data['is_active']  = $request->boolean('is_active', true);
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = auth('admin')->id();
 
         DeliveryRate::create($data);
 
@@ -57,7 +57,7 @@ class DeliveryRateController extends Controller
         ]);
 
         $data['is_active']  = $request->boolean('is_active', true);
-        $data['updated_by'] = auth()->id();
+        $data['updated_by'] = auth('admin')->id();
 
         $rate->update($data);
 
@@ -69,7 +69,7 @@ class DeliveryRateController extends Controller
     {
         $rate = DeliveryRate::findOrFail($id);
         $rate->is_deleted = true;
-        $rate->updated_by = auth()->id();
+        $rate->updated_by = auth('admin')->id();
         $rate->save();
 
         return back()->with('success', 'Tarif berhasil dihapus.');

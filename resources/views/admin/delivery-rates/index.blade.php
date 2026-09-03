@@ -8,7 +8,6 @@
         <i class="bi bi-plus-circle me-1"></i>Tambah Tarif
     </a>
 </div>
-@include('components.alert')
 <div class="card">
     <div class="card-header"><h6><i class="bi bi-truck me-2"></i>Tarif Pengiriman</h6></div>
     <div class="table-responsive">

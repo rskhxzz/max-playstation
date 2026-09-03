@@ -14,7 +14,6 @@
     @endif
 </div>
 
-@include('components.alert')
 
 <div class="row g-3">
     <div class="col-md-6">

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\AuthUser;
-use App\Models\AuthRole;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
@@ -13,9 +13,16 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        if (Auth::check()) {
-            return $this->redirectByRole(Auth::user());
+        // Halaman login selalu ditampilkan agar Admin dan Driver
+        // bisa login bersamaan dari browser yang sama.
+        // Jika sudah login sebagai KEDUANYA, arahkan ke Admin (prioritas).
+        if (Auth::guard('admin')->check()) {
+            // Sudah login sebagai Admin, tapi mungkin mau login Driver juga —
+            // tetap tampilkan form agar tidak memblokir login Driver.
+            // Redirect hanya jika tidak ada role baru yang mau di-login.
+            // Solusi: tetap tampilkan form, biarkan user memilih.
         }
+
         return view('auth.login');
     }
 
@@ -37,7 +44,7 @@ class AuthController extends Controller
         $credential = $request->input('username');
         $password   = $request->input('password');
 
-        // Try username or email
+        // Cari user tanpa global scope (perlu cek active secara manual)
         $user = AuthUser::withoutGlobalScope('active')
             ->where(function ($q) use ($credential) {
                 $q->where('username', $credential)->orWhere('email', $credential);
@@ -59,42 +66,62 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['username' => 'Akun Anda tidak aktif.']);
         }
 
-        if (!\Hash::check($password, $user->password)) {
+        if (!Hash::check($password, $user->password)) {
             RateLimiter::hit($key);
             throw ValidationException::withMessages(['password' => 'Password salah.']);
         }
 
         RateLimiter::clear($key);
 
-        Auth::login($user, $request->boolean('remember'));
-        $request->session()->regenerate();
+        $roleName = strtolower($user->role?->name ?? '');
 
-        // Update last_login
-        $user->timestamps = false;
-        $user->last_login = now();
-        $user->save();
-        $user->timestamps = true;
+        // Login ke guard yang sesuai role — sehingga session Admin dan Driver TERPISAH
+        if (str_contains($roleName, 'admin')) {
+            Auth::guard('admin')->login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            $this->updateLastLogin($user);
+            return redirect()->route('admin.dashboard');
+        }
 
-        return $this->redirectByRole($user);
+        if (str_contains($roleName, 'driver')) {
+            Auth::guard('driver')->login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            $this->updateLastLogin($user);
+            return redirect()->route('driver.dashboard');
+        }
+
+        // Role tidak dikenal
+        throw ValidationException::withMessages(['username' => 'Role akun tidak dikenali.']);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
+        // Logout hanya guard yang sedang aktif sesuai referer/parameter
+        // Cek dari mana request logout datang
+        $from = $request->input('from', '');
+
+        if ($from === 'driver' || str_contains($request->header('Referer', ''), '/driver/')) {
+            // Logout Driver saja
+            Auth::guard('driver')->logout();
+        } elseif ($from === 'admin' || str_contains($request->header('Referer', ''), '/admin/')) {
+            // Logout Admin saja
+            Auth::guard('admin')->logout();
+        } else {
+            // Fallback: logout keduanya
+            Auth::guard('admin')->logout();
+            Auth::guard('driver')->logout();
+        }
+
         $request->session()->regenerateToken();
+
         return redirect()->route('login')->with('success', 'Anda berhasil keluar.');
     }
-
-    private function redirectByRole(AuthUser $user)
+    
+    private function updateLastLogin(AuthUser $user): void
     {
-        $roleName = strtolower($user->role?->name ?? '');
-        if (str_contains($roleName, 'admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-        if (str_contains($roleName, 'driver')) {
-            return redirect()->route('driver.dashboard');
-        }
-        return redirect()->route('home');
+        $user->timestamps = false;
+        $user->last_login = now();
+        $user->save();
+        $user->timestamps = true;
     }
 }

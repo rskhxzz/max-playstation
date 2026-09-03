@@ -9,7 +9,6 @@
 <div class="card" style="max-width:700px;">
     <div class="card-header"><h6>{{ isset($faq) ? 'Edit' : 'Tambah' }} FAQ</h6></div>
     <div class="card-body">
-        @include('components.alert')
         <form action="{{ isset($faq) ? route('admin.faqs.update', $faq->id) : route('admin.faqs.store') }}" method="POST">
             @csrf @if(isset($faq)) @method('PUT') @endif
             <div class="row g-3">

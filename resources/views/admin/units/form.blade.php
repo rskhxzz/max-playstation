@@ -9,7 +9,6 @@
 <div class="card" style="max-width:600px;">
     <div class="card-header"><h6>{{ isset($unit) ? 'Edit' : 'Tambah' }} Unit PlayStation</h6></div>
     <div class="card-body">
-        @include('components.alert')
         <form action="{{ isset($unit) ? route('admin.units.update', $unit->id) : route('admin.units.store') }}" method="POST">
             @csrf @if(isset($unit)) @method('PUT') @endif
             <div class="row g-3">

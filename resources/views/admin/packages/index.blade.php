@@ -10,7 +10,6 @@
     </a>
 </div>
 
-@include('components.alert')
 
 <div class="card">
     <div class="card-header"><h6><i class="bi bi-box me-2"></i>Daftar Paket</h6></div>

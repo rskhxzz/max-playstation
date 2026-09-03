@@ -40,7 +40,7 @@ Route::post('/login',   [AuthController::class, 'login'])->middleware('throttle:
 Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth.admin'])->group(function () {
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
     // Bookings
@@ -96,7 +96,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Admin'])->grou
 });
 
 // ─── Driver ───────────────────────────────────────────────────────────────────
-Route::prefix('driver')->name('driver.')->middleware(['auth', 'role:Driver'])->group(function () {
+Route::prefix('driver')->name('driver.')->middleware(['auth.driver'])->group(function () {
     Route::get('/dashboard', [Driver\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/pesanan/{id}',   [Driver\BookingController::class, 'show'])->name('bookings.show');
     Route::post('/pesanan/{id}/qris-pelunasan',  [Driver\BookingController::class, 'createRemainingPayment'])->name('bookings.remaining-payment');

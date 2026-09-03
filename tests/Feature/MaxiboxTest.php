@@ -155,7 +155,8 @@ class MaxiboxTest extends TestCase
             'password' => 'password123',
         ]);
         $response->assertRedirect('/admin/dashboard');
-        $this->assertAuthenticatedAs($this->adminUser);
+        // Login Admin menggunakan guard 'admin'
+        $this->assertAuthenticatedAs($this->adminUser, 'admin');
     }
 
     // ─── 2. Login Driver berhasil ────────────────────────────────────────────
@@ -167,7 +168,8 @@ class MaxiboxTest extends TestCase
             'password' => 'password123',
         ]);
         $response->assertRedirect('/driver/dashboard');
-        $this->assertAuthenticatedAs($this->driverUser);
+        // Login Driver menggunakan guard 'driver'
+        $this->assertAuthenticatedAs($this->driverUser, 'driver');
     }
 
     // ─── 3. User nonaktif tidak dapat login ──────────────────────────────────
@@ -179,16 +181,28 @@ class MaxiboxTest extends TestCase
             'password' => 'password123',
         ]);
         $response->assertSessionHasErrors();
-        $this->assertGuest();
+        // Pastikan tidak terauthentikasi di kedua guard
+        $this->assertGuest('admin');
+        $this->assertGuest('driver');
     }
 
     // ─── 4. Driver tidak bisa akses CRUD Admin ───────────────────────────────
 
     public function test_driver_cannot_access_admin_routes(): void
     {
-        $this->actingAs($this->driverUser);
+        // Driver login via guard 'driver', tidak boleh akses route admin.
+        // Dengan sistem dual-guard, guard 'admin' kosong saat Driver login
+        // sehingga middleware AuthAdmin meredirect ke /login (bukan 403).
+        // Keduanya (302 redirect atau 403) sama-sama MENOLAK akses Driver.
+        $this->actingAs($this->driverUser, 'driver');
         $response = $this->get('/admin/dashboard');
-        $response->assertStatus(403);
+        // Driver tidak boleh melihat konten admin — redirect ke login atau forbidden
+        $this->assertTrue(
+            in_array($response->getStatusCode(), [302, 403]),
+            'Driver seharusnya tidak dapat mengakses /admin/dashboard'
+        );
+        // Pastikan BUKAN sukses (200)
+        $response->assertStatus(302); // redirect ke /login karena guard admin kosong
     }
 
     // ─── 5. Paket 6 jam ditolak pukul 15:00–24:00 ───────────────────────────
@@ -464,7 +478,7 @@ class MaxiboxTest extends TestCase
             'terms_accepted'         => true,
         ]);
 
-        $this->actingAs($this->driverUser);
+        $this->actingAs($this->driverUser, 'driver');
 
         $response = $this->from('/driver/pesanan/' . $booking->id)
             ->post("/driver/pesanan/{$booking->id}/selesai");
@@ -506,7 +520,7 @@ class MaxiboxTest extends TestCase
             'terms_accepted'        => true,
         ]);
 
-        $this->actingAs($this->driverUser);
+        $this->actingAs($this->driverUser, 'driver');
 
         $response = $this->post("/driver/pesanan/{$booking->id}/selesai");
         $booking->refresh();

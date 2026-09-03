@@ -8,7 +8,6 @@
         <i class="bi bi-person-plus me-1"></i>Tambah Pengguna
     </a>
 </div>
-@include('components.alert')
 <div class="card">
     <div class="card-header"><h6><i class="bi bi-people me-2"></i>Pengguna Admin / Driver</h6></div>
     <div class="table-responsive">

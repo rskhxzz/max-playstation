@@ -8,7 +8,6 @@
         <i class="bi bi-plus-circle me-1"></i>Tambah Unit
     </a>
 </div>
-@include('components.alert')
 <div class="card">
     <div class="card-header"><h6><i class="bi bi-controller me-2"></i>Daftar Unit</h6></div>
     <div class="table-responsive">

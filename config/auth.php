@@ -13,9 +13,22 @@ return [
             'driver'   => 'session',
             'provider' => 'users',
         ],
+
+        // Guard terpisah untuk Admin — session key: login_admin_HASH
+        'admin' => [
+            'driver'   => 'session',
+            'provider' => 'users',
+        ],
+
+        // Guard terpisah untuk Driver — session key: login_driver_HASH
+        'driver' => [
+            'driver'   => 'session',
+            'provider' => 'users',
+        ],
     ],
 
     'providers' => [
+        // Satu provider cukup — keduanya pakai model AuthUser yang sama
         'users' => [
             'driver' => 'eloquent',
             'model'  => AuthUser::class,

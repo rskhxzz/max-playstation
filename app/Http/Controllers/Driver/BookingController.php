@@ -41,7 +41,7 @@ class BookingController extends Controller
             ->findOrFail($id);
 
         try {
-            $payment = $this->paymentService->createRemainingPayment($booking, auth()->id());
+            $payment = $this->paymentService->createRemainingPayment($booking, auth('driver')->id());
             return response()->json([
                 'success'    => true,
                 'snap_token' => $payment->qr_string,
@@ -62,7 +62,7 @@ class BookingController extends Controller
             ->findOrFail($id);
 
         try {
-            $this->paymentService->settleRemainingByCash($booking, auth()->id());
+            $this->paymentService->settleRemainingByCash($booking, auth('driver')->id());
             return response()->json([
                 'success' => true,
                 'message' => 'Pelunasan tunai berhasil dicatat.',
@@ -87,7 +87,7 @@ class BookingController extends Controller
 
         $booking->booking_status = 'arrived';
         $booking->arrived_at     = now();
-        $booking->updated_by     = auth()->id();
+        $booking->updated_by     = auth('driver')->id();
         $booking->save();
 
         return redirect()->route('driver.dashboard')

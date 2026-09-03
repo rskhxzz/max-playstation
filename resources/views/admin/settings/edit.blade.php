@@ -3,7 +3,6 @@
 @section('page-title', 'Pengaturan Usaha')
 
 @section('content')
-@include('components.alert')
 <div class="card" style="max-width:700px;">
     <div class="card-header"><h6><i class="bi bi-gear me-2"></i>Pengaturan Usaha</h6></div>
     <div class="card-body">
