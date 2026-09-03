@@ -99,6 +99,8 @@ class BookingController extends Controller
         $booking->updated_by          = auth()->id();
         $booking->save();
 
-        return back()->with('success', 'Booking berhasil dibatalkan.');
+        return redirect()
+            ->route('admin.bookings.index')
+            ->with('success', 'Booking berhasil dibatalkan.');
     }
 }

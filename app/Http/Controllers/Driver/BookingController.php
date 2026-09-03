@@ -15,8 +15,9 @@ class BookingController extends Controller
 
     public function show(string $id)
     {
+        // Driver boleh melihat detail pesanan delivered (siap diantar) maupun arrived (sudah sampai)
         $booking = Booking::with(['customer', 'rentalPackage', 'playstationUnit', 'payments'])
-            ->where('booking_status', 'delivered')
+            ->whereIn('booking_status', ['delivered', 'arrived'])
             ->findOrFail($id);
 
         $snapToken = null;
@@ -48,6 +49,29 @@ class BookingController extends Controller
             ]);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Catat pelunasan tunai/cash. Driver konfirmasi uang sudah diterima.
+     */
+    public function settleRemainingCash(string $id)
+    {
+        $booking = Booking::where('booking_status', 'delivered')
+            ->where('payment_status', 'partial')
+            ->findOrFail($id);
+
+        try {
+            $this->paymentService->settleRemainingByCash($booking, auth()->id());
+            return response()->json([
+                'success' => true,
+                'message' => 'Pelunasan tunai berhasil dicatat.',
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            \Log::error('settleRemainingCash error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem.'], 500);
         }
     }
 

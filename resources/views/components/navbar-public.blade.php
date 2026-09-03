@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-public">
     <div class="container">
         <a class="navbar-brand navbar-brand-text d-flex align-items-center gap-2" href="{{ route('home') }}">
-            <i class="bi bi-controller" style="color:var(--clr-cyan);font-size:1.4rem;"></i>
+            <i class="bi bi-controller" style="color:#22D3EE;font-size:1.4rem;"></i>
             Maxibox <span>Playstation</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPublic">

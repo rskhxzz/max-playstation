@@ -73,7 +73,7 @@
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead>
-                <tr><th>Kode</th><th>Customer</th><th>Paket</th><th>Selesai</th><th>Status</th></tr>
+                <tr><th>Kode</th><th>Customer</th><th>Paket</th><th>Selesai</th><th>Status</th><th>Aksi</th></tr>
             </thead>
             <tbody>
                 @forelse($history as $b)
@@ -83,9 +83,14 @@
                     <td>{{ $b->rentalPackage?->name }}</td>
                     <td>{{ $b->arrived_at ? \Carbon\Carbon::parse($b->arrived_at)->timezone('Asia/Jakarta')->format('d/m H:i') : '—' }}</td>
                     <td><span class="badge bg-{{ $b->booking_status_badge }}">{{ $b->booking_status_label }}</span></td>
+                    <td>
+                        <a href="{{ route('driver.bookings.show', $b->id) }}" class="btn btn-sm btn-outline-secondary" style="font-size:0.75rem;border-radius:6px;">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
                 </tr>
                 @empty
-                <tr><td colspan="5" class="text-center text-muted py-4">Belum ada riwayat.</td></tr>
+                <tr><td colspan="6" class="text-center text-muted py-4">Belum ada riwayat.</td></tr>
                 @endforelse
             </tbody>
         </table>
