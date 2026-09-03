@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Maxibox Playstation')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/tab-max.png') }}">
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -33,12 +34,18 @@
         }
         .navbar-brand-text { color: var(--clr-white); font-weight: 700; font-size: 1.2rem; }
         .navbar-brand-text span { color: var(--clr-cyan); }
+        .navbar-brand-text:hover {
+             color: var(--clr-cyan) !important;
+        }
+        .navbar-brand-text:hover span {
+             color: var(--clr-cyan) !important;
+        }
         .navbar-public .nav-link {
             color: rgba(255,255,255,0.85) !important;
             font-weight: 500; font-size: 0.92rem;
             transition: color 0.2s;
         }
-        .navbar-public .nav-link:hover { color: var(--clr-cyan) !important; }
+        .navbar-public .navbar-nav .nav-link:hover {color: #00D9FF !important;}
         .navbar-toggler { border-color: rgba(255,255,255,0.3); }
         .navbar-toggler-icon { filter: invert(1); }
 
@@ -84,6 +91,9 @@
         .section-title { font-size: 1.8rem; font-weight: 700; color: var(--clr-dark); }
         .section-subtitle { color: #6b7280; font-size: 1rem; }
         .accent-line { width: 50px; height: 4px; background: var(--clr-magenta); border-radius: 2px; margin: 0.75rem 0; }
+        #paket {
+            scroll-margin-top: 80px;
+        }
 
         /* Package cards */
         .package-card { border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }

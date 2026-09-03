@@ -35,7 +35,9 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         $payments  = $this->buildQuery($request)->latest()->paginate(15)->withQueryString();
-        $totalPaid = Payment::where('status', 'succeeded')->sum('paid_amount');
+
+        // Hitung total pemasukan sesuai filter yang aktif (hanya status=succeeded)
+        $totalPaid = $this->buildQuery($request)->where('status', 'succeeded')->sum('paid_amount');
 
         return view('admin.payments.index', compact('payments', 'totalPaid'));
     }

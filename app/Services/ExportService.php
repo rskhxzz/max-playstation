@@ -123,7 +123,7 @@ class ExportService
             $sheet,
             'LAPORAN PEMBAYARAN — MAXIBOX PLAYSTATION',
             $this->buildFilterDescription($filters),
-            8
+            9
         );
 
         // ── Header kolom (baris 4) ────────────────────────────────────────────

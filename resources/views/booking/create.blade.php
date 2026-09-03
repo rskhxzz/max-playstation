@@ -60,13 +60,6 @@
                                 @error('rental_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Jam Mulai <span class="text-danger">*</span></label>
-                                <input type="time" name="rental_time" id="rental_time" class="form-control @error('rental_time') is-invalid @enderror"
-                                       value="{{ old('rental_time') }}">
-                                @error('rental_time')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                <div id="timeWarning" class="text-danger small mt-1 d-none"></div>
-                            </div>
-                            <div class="col-md-4">
                                 <label class="form-label">Paket Sewa <span class="text-danger">*</span></label>
                                 <select name="rental_package_id" id="packageSelect" class="form-select @error('rental_package_id') is-invalid @enderror">
                                     <option value="">-- Pilih Paket --</option>
@@ -82,6 +75,13 @@
                                     @endforeach
                                 </select>
                                 @error('rental_package_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Jam Mulai <span class="text-danger">*</span></label>
+                                <input type="time" name="rental_time" id="rental_time" class="form-control @error('rental_time') is-invalid @enderror"
+                                       value="{{ old('rental_time') }}">
+                                @error('rental_time')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <div id="timeWarning" class="text-danger small mt-1 d-none"></div>
                             </div>
                         </div>
 

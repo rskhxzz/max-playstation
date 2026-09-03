@@ -22,31 +22,30 @@ class MidtransService
      * Create a Snap payment transaction and return token + redirect URL.
      */
     public function createSnapTransaction(
-        string $orderId,
-        float $amount,
-        array $customerDetails
-    ): array {
-        $params = [
-            'transaction_details' => [
-                'order_id'     => $orderId,
-                'gross_amount' => (int) $amount,
-            ],
-            'customer_details' => $customerDetails,
-            'enabled_payments' => ['qris'],
-            'expiry' => [
-                'unit'     => 'minutes',
-                'duration' => 60,
-            ],
-        ];
+    string $orderId,
+    float $amount,
+    array $customerDetails
+): array {
+    $params = [
+        'transaction_details' => [
+            'order_id'     => $orderId,
+            'gross_amount' => (int) $amount,
+        ],
+        'customer_details' => $customerDetails,
+        'enabled_payments' => ['other_qris'],
+        'expiry' => [
+            'unit'     => 'minutes',
+            'duration' => 60,
+        ],
+    ];
 
-        $snapToken   = Snap::getSnapToken($params);
-        $redirectUrl = Snap::getSnapUrl($params);
+    $response = Snap::createTransaction($params);
 
-        return [
-            'snap_token'   => $snapToken,
-            'redirect_url' => $redirectUrl ?? '',
-        ];
-    }
+    return [
+        'snap_token'   => $response->token,
+        'redirect_url' => $response->redirect_url ?? '',
+    ];
+}
 
     /**
      * Verify webhook signature from Midtrans.

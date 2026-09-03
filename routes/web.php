@@ -99,6 +99,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Admin'])->grou
 Route::prefix('driver')->name('driver.')->middleware(['auth', 'role:Driver'])->group(function () {
     Route::get('/dashboard', [Driver\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/pesanan/{id}',   [Driver\BookingController::class, 'show'])->name('bookings.show');
-    Route::post('/pesanan/{id}/qris-pelunasan', [Driver\BookingController::class, 'createRemainingPayment'])->name('bookings.remaining-payment');
-    Route::post('/pesanan/{id}/selesai', [Driver\BookingController::class, 'markArrived'])->name('bookings.arrived');
+    Route::post('/pesanan/{id}/qris-pelunasan',  [Driver\BookingController::class, 'createRemainingPayment'])->name('bookings.remaining-payment');
+    Route::post('/pesanan/{id}/cash-pelunasan',  [Driver\BookingController::class, 'settleRemainingCash'])->name('bookings.cash-settlement');
+    Route::post('/pesanan/{id}/selesai',         [Driver\BookingController::class, 'markArrived'])->name('bookings.arrived');
 });

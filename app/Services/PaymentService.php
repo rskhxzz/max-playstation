@@ -64,6 +64,79 @@ class PaymentService
     }
 
     /**
+     * Catat pelunasan tunai (cash) oleh Driver.
+     * Langsung set status succeeded tanpa melalui Midtrans.
+     * Jika ada transaksi QRIS pelunasan yang masih pending, batalkan dulu.
+     *
+     * @throws \RuntimeException
+     */
+    public function settleRemainingByCash(Booking $booking, string $userId): Payment
+    {
+        return DB::transaction(function () use ($booking, $userId) {
+            // Lock booking untuk cegah race condition
+            $booking = Booking::withoutGlobalScope('not_deleted')
+                ->where('id', $booking->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Hanya boleh jika status booking delivered dan payment partial
+            if ($booking->booking_status !== 'delivered') {
+                throw new \RuntimeException('Booking tidak dalam status siap diantar.');
+            }
+            if ($booking->payment_status !== 'partial') {
+                throw new \RuntimeException('Tidak ada sisa tagihan yang perlu dilunasi.');
+            }
+
+            // Cegah double payment: cek apakah sudah ada pelunasan succeeded
+            $alreadyPaid = Payment::where('booking_id', $booking->id)
+                ->where('payment_type', 'remaining')
+                ->where('status', 'succeeded')
+                ->exists();
+
+            if ($alreadyPaid) {
+                throw new \RuntimeException('Pelunasan sudah berhasil diproses sebelumnya.');
+            }
+
+            // Batalkan QRIS pelunasan yang masih pending agar tidak double payment
+            // ketika webhook Midtrans datang setelah cash dicatat
+            Payment::where('booking_id', $booking->id)
+                ->where('payment_type', 'remaining')
+                ->where('status', 'pending')
+                ->update(['status' => 'failed', 'updated_by' => $userId]);
+
+            $remainingAmount = $booking->remaining_amount;
+            $paymentCode     = 'CSH-' . strtoupper(Str::random(10)) . '-' . time();
+
+            // Buat record pembayaran cash dengan status langsung succeeded
+            $payment = Payment::create([
+                'booking_id'       => $booking->id,
+                'payment_code'     => $paymentCode,
+                'payment_type'     => 'remaining',
+                'payment_method'   => 'cash',
+                'provider'         => 'manual',
+                'requested_amount' => $remainingAmount,
+                'paid_amount'      => $remainingAmount,
+                'status'           => 'succeeded',
+                'paid_at'          => now(),
+                'expires_at'       => now(),
+                'created_by'       => $userId,
+                'updated_by'       => $userId,
+            ]);
+
+            // Perbarui booking: lunas
+            $booking->total_paid       = $booking->total_paid + $remainingAmount;
+            $booking->remaining_amount = 0;
+            $booking->payment_status   = 'paid';
+            $booking->updated_by       = $userId;
+            $booking->save();
+
+            Log::info("Cash pelunasan recorded by driver {$userId} for booking {$booking->booking_code}, amount {$remainingAmount}");
+
+            return $payment;
+        });
+    }
+
+    /**
      * Create remaining (pelunasan) payment.
      */
     public function createRemainingPayment(Booking $booking, string $userId): Payment

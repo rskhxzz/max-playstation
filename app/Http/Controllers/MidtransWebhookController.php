@@ -124,7 +124,7 @@ class MidtransWebhookController extends Controller
         }
 
         if ($payment->payment_type === 'initial') {
-            $booking->total_paid    = $payment->paid_amount;
+            $booking->total_paid     = $payment->paid_amount;
             $booking->booking_status = 'delivered';
 
             if ($booking->payment_option === 'full') {
@@ -136,6 +136,13 @@ class MidtransWebhookController extends Controller
                 $booking->payment_status   = 'partial';
             }
         } elseif ($payment->payment_type === 'remaining') {
+            // Guard: jika booking sudah lunas (misal cash dicatat lebih dulu),
+            // jangan tambahkan pembayaran lagi untuk cegah double credit.
+            if ($booking->payment_status === 'paid') {
+                Log::warning("Webhook remaining skipped: booking {$booking->booking_code} already paid.");
+                return;
+            }
+
             $booking->total_paid       = $booking->total_paid + $payment->paid_amount;
             $booking->remaining_amount = 0;
             $booking->payment_status   = 'paid';
