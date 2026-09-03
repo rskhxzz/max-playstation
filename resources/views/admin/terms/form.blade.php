@@ -9,7 +9,6 @@
 <div class="card" style="max-width:800px;">
     <div class="card-header"><h6>{{ isset($terms) ? 'Edit' : 'Tambah' }} Syarat & Ketentuan</h6></div>
     <div class="card-body">
-        @include('components.alert')
         @if(!isset($terms) && isset($nextVersion))
         <div class="alert alert-info py-2 mb-3" style="font-size:0.85rem;">
             <i class="bi bi-info-circle me-1"></i>Versi baru akan dibuat: <strong>v{{ $nextVersion }}</strong>

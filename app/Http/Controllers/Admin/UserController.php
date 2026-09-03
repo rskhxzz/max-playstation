@@ -41,7 +41,7 @@ class UserController extends Controller
         $data['id']         = (string) Str::uuid();
         $data['password']   = \Hash::make($data['password']);
         $data['active']     = $request->boolean('active', true);
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = auth('admin')->id();
         $data['is_deleted'] = false;
 
         AuthUser::withoutGlobalScope('active')->create($data);
@@ -82,7 +82,7 @@ class UserController extends Controller
         }
 
         $data['active']     = $request->boolean('active', true);
-        $data['updated_by'] = auth()->id();
+        $data['updated_by'] = auth('admin')->id();
 
         $user->update($data);
 
@@ -94,13 +94,13 @@ class UserController extends Controller
     {
         $user = AuthUser::withoutGlobalScope('active')->findOrFail($id);
 
-        if ($user->id === auth()->id()) {
+        if ($user->id === auth('admin')->id()) {
             return back()->withErrors(['error' => 'Tidak dapat menghapus akun sendiri.']);
         }
 
         $user->is_deleted = true;
         $user->active     = false;
-        $user->updated_by = auth()->id();
+        $user->updated_by = auth('admin')->id();
         $user->save();
 
         return back()->with('success', 'Pengguna berhasil dihapus.');

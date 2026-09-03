@@ -9,7 +9,6 @@
 <div class="card" style="max-width:500px;">
     <div class="card-header"><h6>{{ isset($rate) ? 'Edit' : 'Tambah' }} Tarif Pengiriman</h6></div>
     <div class="card-body">
-        @include('components.alert')
         <form action="{{ isset($rate) ? route('admin.delivery-rates.update', $rate->id) : route('admin.delivery-rates.store') }}" method="POST">
             @csrf @if(isset($rate)) @method('PUT') @endif
             <div class="row g-3">

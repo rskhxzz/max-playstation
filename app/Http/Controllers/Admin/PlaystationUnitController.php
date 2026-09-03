@@ -32,7 +32,7 @@ class PlaystationUnitController extends Controller
         ]);
 
         $data['is_active']  = $request->boolean('is_active', true);
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = auth('admin')->id();
 
         PlaystationUnit::create($data);
 
@@ -61,7 +61,7 @@ class PlaystationUnitController extends Controller
         ]);
 
         $data['is_active']  = $request->boolean('is_active', true);
-        $data['updated_by'] = auth()->id();
+        $data['updated_by'] = auth('admin')->id();
 
         $unit->update($data);
 
@@ -73,7 +73,7 @@ class PlaystationUnitController extends Controller
     {
         $unit = PlaystationUnit::findOrFail($id);
         $unit->is_deleted = true;
-        $unit->updated_by = auth()->id();
+        $unit->updated_by = auth('admin')->id();
         $unit->save();
 
         return back()->with('success', 'Unit berhasil dihapus.');

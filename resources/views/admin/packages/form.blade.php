@@ -12,7 +12,6 @@
 <div class="card" style="max-width:600px;">
     <div class="card-header"><h6>{{ isset($package) ? 'Edit' : 'Tambah' }} Paket Sewa</h6></div>
     <div class="card-body">
-        @include('components.alert')
         <form action="{{ isset($package) ? route('admin.packages.update', $package->id) : route('admin.packages.store') }}" method="POST">
             @csrf
             @if(isset($package)) @method('PUT') @endif

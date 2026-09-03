@@ -82,9 +82,11 @@
                 <span class="topbar-title">@yield('page-title', 'Dashboard')</span>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <span class="text-muted small">{{ auth()->user()?->name }}</span>
+                <span class="text-muted small">{{ Auth::guard('admin')->user()?->name }}</span>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf
+                    {{-- Kirim from=admin agar logout hanya menghapus session Admin --}}
+                    <input type="hidden" name="from" value="admin">
                     <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius:6px;font-size:0.8rem;">
                         <i class="bi bi-box-arrow-right"></i> Keluar
                     </button>

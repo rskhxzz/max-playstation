@@ -30,7 +30,7 @@ class FaqController extends Controller
 
         $data['seq']          = $request->seq ?? 0;
         $data['is_published'] = $request->boolean('is_published', true);
-        $data['created_by']   = auth()->id();
+        $data['created_by']   = auth('admin')->id();
 
         Faq::create($data);
 
@@ -57,7 +57,7 @@ class FaqController extends Controller
 
         $data['seq']          = $request->seq ?? 0;
         $data['is_published'] = $request->boolean('is_published', false);
-        $data['updated_by']   = auth()->id();
+        $data['updated_by']   = auth('admin')->id();
 
         $faq->update($data);
 
@@ -69,7 +69,7 @@ class FaqController extends Controller
     {
         $faq = Faq::findOrFail($id);
         $faq->is_deleted = true;
-        $faq->updated_by = auth()->id();
+        $faq->updated_by = auth('admin')->id();
         $faq->save();
 
         return back()->with('success', 'FAQ berhasil dihapus.');

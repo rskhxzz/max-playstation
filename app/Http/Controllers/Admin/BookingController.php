@@ -96,7 +96,7 @@ class BookingController extends Controller
 
         $booking->booking_status      = 'canceled';
         $booking->cancellation_reason = $request->reason;
-        $booking->updated_by          = auth()->id();
+        $booking->updated_by          = auth('admin')->id();
         $booking->save();
 
         return redirect()

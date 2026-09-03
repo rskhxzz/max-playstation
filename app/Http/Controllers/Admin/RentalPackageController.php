@@ -34,7 +34,7 @@ class RentalPackageController extends Controller
         ]);
 
         $data['is_active']  = $request->boolean('is_active', true);
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = auth('admin')->id();
 
         RentalPackage::create($data);
 
@@ -64,7 +64,7 @@ class RentalPackageController extends Controller
         ]);
 
         $data['is_active']  = $request->boolean('is_active', true);
-        $data['updated_by'] = auth()->id();
+        $data['updated_by'] = auth('admin')->id();
 
         $package->update($data);
 
@@ -76,7 +76,7 @@ class RentalPackageController extends Controller
     {
         $package = RentalPackage::findOrFail($id);
         $package->is_deleted = true;
-        $package->updated_by = auth()->id();
+        $package->updated_by = auth('admin')->id();
         $package->save();
 
         return back()->with('success', 'Paket berhasil dihapus.');

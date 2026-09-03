@@ -30,7 +30,7 @@ class TermsConditionController extends Controller
 
         $data['version']    = (TermsCondition::withoutGlobalScope('not_deleted')->max('version') ?? 0) + 1;
         $data['is_active']  = $request->boolean('is_active', true);
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = auth('admin')->id();
 
         // Deactivate others if this is active
         if ($data['is_active']) {
@@ -60,7 +60,7 @@ class TermsConditionController extends Controller
         ]);
 
         $data['is_active']  = $request->boolean('is_active', false);
-        $data['updated_by'] = auth()->id();
+        $data['updated_by'] = auth('admin')->id();
 
         if ($data['is_active']) {
             TermsCondition::where('id', '!=', $id)->where('is_active', true)->update(['is_active' => false]);
@@ -76,7 +76,7 @@ class TermsConditionController extends Controller
     {
         $terms = TermsCondition::findOrFail($id);
         $terms->is_deleted = true;
-        $terms->updated_by = auth()->id();
+        $terms->updated_by = auth('admin')->id();
         $terms->save();
 
         return back()->with('success', 'Syarat dan ketentuan berhasil dihapus.');

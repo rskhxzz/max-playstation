@@ -36,9 +36,11 @@
                 Maxibox <span>Playstation</span> <small class="badge ms-1" style="background:#E6007E;font-size:0.65rem;">Driver</small>
             </a>
             <div class="d-flex align-items-center gap-3">
-                <span class="text-white small">{{ auth()->user()?->name }}</span>
+                <span class="text-white small">{{ Auth::guard('driver')->user()?->name }}</span>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
+                    {{-- Kirim from=driver agar logout hanya menghapus session Driver --}}
+                    <input type="hidden" name="from" value="driver">
                     <button type="submit" class="btn btn-sm btn-outline-light" style="font-size:0.8rem;">
                         <i class="bi bi-box-arrow-right"></i> Keluar
                     </button>
