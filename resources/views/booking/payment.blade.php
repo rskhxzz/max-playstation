@@ -3,16 +3,62 @@
 
 @push('styles')
 <style>
-.payment-card { max-width: 550px; margin: 0 auto; }
-.countdown { font-size: 2rem; font-weight: 800; color: var(--clr-magenta); font-variant-numeric: tabular-nums; }
-.countdown-label { font-size: 0.78rem; color: #6b7280; }
-.snap-btn { background: var(--clr-magenta); color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; padding: 0.85rem 2rem; width: 100%; }
-.snap-btn:hover { background: #c4006b; }
-.snap-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-.detail-row { display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
-.detail-row:last-child { border: none; }
-.detail-row .label { color: #6b7280; }
-.detail-row .value { font-weight: 600; }
+    .payment-card {
+        max-width: 550px;
+        margin: 0 auto;
+    }
+
+    .countdown {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--clr-magenta);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .countdown-label {
+        font-size: 0.78rem;
+        color: #6b7280;
+    }
+
+    .snap-btn {
+        background: var(--clr-magenta);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.85rem 2rem;
+        width: 100%;
+    }
+
+    .snap-btn:hover {
+        background: #c4006b;
+    }
+
+    .snap-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.4rem 0;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detail-row:last-child {
+        border: none;
+    }
+
+    .detail-row .label {
+        color: #6b7280;
+    }
+
+    .detail-row .value {
+        font-weight: 600;
+    }
 </style>
 @endpush
 
@@ -33,9 +79,9 @@
             <div class="alert @if($booking->booking_status === 'expired') alert-danger @else alert-success @endif">
                 <i class="bi bi-info-circle me-2"></i>
                 @if($booking->booking_status === 'expired')
-                    Pembayaran sudah kedaluwarsa. Silakan buat pesanan baru.
+                Pembayaran sudah kedaluwarsa. Silakan buat pesanan baru.
                 @else
-                    Pembayaran berhasil! Status: {{ $booking->booking_status_label }}
+                Pembayaran berhasil! Status: {{ $booking->booking_status_label }}
                 @endif
                 <br><a href="{{ route('booking.status', $booking->booking_code) }}" class="fw-600">Lihat status pesanan →</a>
             </div>
@@ -75,24 +121,24 @@
             </div>
 
             @if($booking->booking_status === 'pending_payment' && $payment)
-                {{-- Countdown --}}
-                @php $expiresAt = \Carbon\Carbon::parse($payment->expires_at); @endphp
-                <div class="text-center mb-4">
-                    <div class="countdown-label">Batas waktu pembayaran</div>
-                    <div class="countdown" id="countdown">--:--</div>
-                    <div class="countdown-label">{{ $expiresAt->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</div>
-                </div>
+            {{-- Countdown --}}
+            @php $expiresAt = \Carbon\Carbon::parse($payment->expires_at); @endphp
+            <div class="text-center mb-4">
+                <div class="countdown-label">Batas waktu pembayaran</div>
+                <div class="countdown" id="countdown">--:--</div>
+                <div class="countdown-label">{{ $expiresAt->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</div>
+            </div>
 
-                @if($clientKey)
-                <button type="button" class="snap-btn mb-3" id="snapBtn">
-                    <i class="bi bi-qr-code me-2"></i>Bayar dengan QRIS
-                </button>
-                @else
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Pembayaran belum dikonfigurasi. Isi <code>MIDTRANS_CLIENT_KEY</code> pada .env.
-                </div>
-                @endif
+            @if($clientKey)
+            <button type="button" class="snap-btn mb-3" id="snapBtn">
+                <i class="bi bi-qr-code me-2"></i>Bayar dengan QRIS
+            </button>
+            @else
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Pembayaran belum dikonfigurasi. Isi <code>MIDTRANS_CLIENT_KEY</code> pada .env.
+            </div>
+            @endif
             @endif
 
             <div class="text-center mt-3">
@@ -107,37 +153,51 @@
 
 @push('scripts')
 @if($booking->booking_status === 'pending_payment' && $payment && $clientKey)
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ $clientKey }}"></script>
+<script
+    src="{{ config('services.midtrans.snap_js_url') }}"
+    data-client-key="{{ $clientKey }}">
+</script>
 <script>
-const snapToken   = '{{ $payment->qr_string }}';
-const statusUrl   = '{{ route("booking.status", $booking->booking_code) }}';
-const expiresAt   = new Date('{{ \Carbon\Carbon::parse($payment->expires_at)->toIso8601String() }}');
+    const snapToken = '{{ $payment->qr_string }}';
+    const statusUrl = '{{ route("booking.status", $booking->booking_code) }}';
+    const expiresAt = new Date('{{ \Carbon\Carbon::parse($payment->expires_at)->toIso8601String() }}');
 
-// Countdown
-function updateCountdown() {
-    const diff = Math.floor((expiresAt - Date.now()) / 1000);
-    if (diff <= 0) {
-        document.getElementById('countdown').textContent = '00:00';
-        document.getElementById('snapBtn')?.setAttribute('disabled', 'disabled');
-        return;
+    // Countdown
+    function updateCountdown() {
+        const diff = Math.floor((expiresAt - Date.now()) / 1000);
+        if (diff <= 0) {
+            document.getElementById('countdown').textContent = '00:00';
+            document.getElementById('snapBtn')?.setAttribute('disabled', 'disabled');
+            return;
+        }
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('countdown').textContent = `${m}:${s}`;
     }
-    const m = String(Math.floor(diff / 60)).padStart(2, '0');
-    const s = String(diff % 60).padStart(2, '0');
-    document.getElementById('countdown').textContent = `${m}:${s}`;
-}
-setInterval(updateCountdown, 1000);
-updateCountdown();
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
 
-// Snap
-document.getElementById('snapBtn')?.addEventListener('click', function() {
-    if (!snapToken) { alert('Token pembayaran tidak tersedia.'); return; }
-    window.snap.pay(snapToken, {
-        onSuccess: function() { window.location.href = statusUrl + '?paid=1'; },
-        onPending: function() { window.location.href = statusUrl; },
-        onError:   function() { alert('Pembayaran gagal. Silakan coba lagi.'); },
-        onClose:   function() { window.location.href = statusUrl; }
+    // Snap
+    document.getElementById('snapBtn')?.addEventListener('click', function() {
+        if (!snapToken) {
+            alert('Token pembayaran tidak tersedia.');
+            return;
+        }
+        window.snap.pay(snapToken, {
+            onSuccess: function() {
+                window.location.href = statusUrl + '?paid=1';
+            },
+            onPending: function() {
+                window.location.href = statusUrl;
+            },
+            onError: function() {
+                alert('Pembayaran gagal. Silakan coba lagi.');
+            },
+            onClose: function() {
+                window.location.href = statusUrl;
+            }
+        });
     });
-});
 </script>
 @endif
 @endpush

@@ -815,8 +815,9 @@ $isPickupDue = $booking->booking_status === 'arrived'
 @push('scripts')
 @if($clientKey)
 <script
-    src="https://app.sandbox.midtrans.com/snap/snap.js"
-    data-client-key="{{ $clientKey }}"></script>
+    src="{{ config('services.midtrans.snap_js_url') }}"
+    data-client-key="{{ $clientKey }}">
+</script>
 @endif
 
 <script>

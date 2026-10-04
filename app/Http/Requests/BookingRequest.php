@@ -26,6 +26,7 @@ class BookingRequest extends FormRequest
             'payment_option'    => 'required|in:full,deposit',
             'terms_agreed'      => 'required|accepted',
             'customer_notes'    => 'nullable|string|max:500',
+            'booking_token' => 'required|uuid',
         ];
     }
 
