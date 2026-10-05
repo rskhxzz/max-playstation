@@ -71,8 +71,8 @@ class BookingController extends Controller
             $booking->payment_status ===
             'partial'
             && $booking->booking_status ===
-            'delivered'
-            && $booking->driver_id ===
+            'on_delivery'
+            && (string) $booking->driver_id ===
             $driverId
         ) {
             $pending =
@@ -290,22 +290,22 @@ class BookingController extends Controller
     public function createRemainingPayment(
         string $id
     ) {
-        $booking =
-            Booking::where(
-                'driver_id',
-                auth('driver')->id()
-            )
-            ->where(
-                'booking_status',
-                'delivered'
-            )
-            ->where(
-                'payment_status',
-                'partial'
-            )
-            ->findOrFail($id);
-
         try {
+            $booking =
+                Booking::where(
+                    'driver_id',
+                    auth('driver')->id()
+                )
+                ->where(
+                    'booking_status',
+                    'on_delivery'
+                )
+                ->where(
+                    'payment_status',
+                    'partial'
+                )
+                ->findOrFail($id);
+
             $payment =
                 $this->paymentService
                 ->createRemainingPayment(
@@ -345,22 +345,22 @@ class BookingController extends Controller
     public function settleRemainingCash(
         string $id
     ) {
-        $booking =
-            Booking::where(
-                'driver_id',
-                auth('driver')->id()
-            )
-            ->where(
-                'booking_status',
-                'delivered'
-            )
-            ->where(
-                'payment_status',
-                'partial'
-            )
-            ->findOrFail($id);
-
         try {
+            $booking =
+                Booking::where(
+                    'driver_id',
+                    auth('driver')->id()
+                )
+                ->where(
+                    'booking_status',
+                    'on_delivery'
+                )
+                ->where(
+                    'payment_status',
+                    'partial'
+                )
+                ->findOrFail($id);
+
             $this->paymentService
                 ->settleRemainingByCash(
                     $booking,

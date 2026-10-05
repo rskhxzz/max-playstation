@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Expire pending payments every minute
 Schedule::command('payments:expire')->everyMinute();
+
+// Cleanup booking idempotency records daily at 03:00
+Schedule::command('booking:cleanup-idempotency')->dailyAt('03:00');
