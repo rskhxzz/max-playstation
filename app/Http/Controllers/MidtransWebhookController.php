@@ -197,16 +197,13 @@ class MidtransWebhookController extends Controller
 
                     if (!$payment) {
                         Log::warning(
-                            'Midtrans webhook: payment not found.',
+                            'Midtrans webhook: payment not found, notification acknowledged.',
                             [
-                                'order_id' =>
-                                $orderId,
+                                'order_id' => $orderId,
                             ]
                         );
 
-                        throw new \RuntimeException(
-                            'Payment not found.'
-                        );
+                        return;
                     }
 
                     if (
